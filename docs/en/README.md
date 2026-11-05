@@ -40,3 +40,14 @@ Debug builds provide an isolated preview and local automation routes. Their [dev
 See [architecture](architecture.md), [installation and updates](releases.md), [contributing](CONTRIBUTING.md) and [security reporting](security.md). Report ordinary bugs and requests through [Issues](https://github.com/io7-cn/Quantum.Mobile/issues).
 
 Licensed under [Apache License 2.0](../../LICENSE). Attribution and third-party terms are provided in [NOTICE](../../NOTICE).
+
+## Development standards
+
+Follow the [English development standards](../../.standards/docs/en/README.md). The .standards submodule records the exact reviewed revision; upstream changes apply only after an explicit update of that recorded commit. Initialize it before development:
+
+```sh
+git submodule update --init --recursive
+python .standards/.ci/check-adoption.py
+```
+
+Keep both language editions aligned. AGENTS.md links to the adopted English entry point; project-specific instructions supplement the shared requirements.

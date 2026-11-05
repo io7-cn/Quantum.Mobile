@@ -40,3 +40,14 @@ Debug 构建提供隔离预览与本地自动化接口，设置方式见[开发�
 另见[架构](architecture.md)、[安装与更新](releases.md)、[贡献指南](CONTRIBUTING.md)及[安全问题报告](security.md)。普通缺陷和需求提交到 [Issues](https://github.com/io7-cn/Quantum.Mobile/issues)。
 
 项目采用 [Apache License 2.0](../../LICENSE)，版权归属及第三方条款见 [NOTICE](../../NOTICE)。
+
+## 开发规范
+
+遵循[简体中文开发规范](../../.standards/docs/zh-CN/README.md)。.standards 子模块记录经过审查的确切版本；上游变更只有在显式更新该提交后才生效。开发前初始化：
+
+```sh
+git submodule update --init --recursive
+python .standards/.ci/check-adoption.py
+```
+
+同步维护两种语言。AGENTS.md 指向采用的英文入口，项目专属指令补充共享规范。
