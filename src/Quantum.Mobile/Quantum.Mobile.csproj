@@ -10,7 +10,7 @@
     <SingleProject>true</SingleProject>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <ApplicationTitle>Quantum Mobile</ApplicationTitle>
+    <ApplicationTitle>Quantum</ApplicationTitle>
     <ApplicationId>io.quantum.mobile</ApplicationId>
     <ApplicationDisplayVersion>0.1.13</ApplicationDisplayVersion>
     <ApplicationVersion>1</ApplicationVersion>
@@ -28,8 +28,9 @@
     <ProjectReference Include="../Quantum.Mobile.Debugging/Quantum.Mobile.Debugging.csproj" Condition="'$(Configuration)' == 'Debug'"/>
     <MauiAsset Include="../../LICENSE" LogicalName="LICENSE"/>
     <MauiAsset Include="../../NOTICE" LogicalName="NOTICE"/>
-    <MauiIcon Include="Resources\appicon.svg" Color="#181824"/>
-    <MauiSplashScreen Include="Resources\appicon.svg" Color="#181824" BaseSize="128,128"/>
+    <MauiIcon Include="Resources\appicon.svg" ForegroundFile="Resources\appiconfg.svg" Color="#6D5DFB"/>
+    <MauiImage Include="Resources\appiconfg.svg" BaseSize="48,48"/>
+    <MauiSplashScreen Include="Resources\splash.svg" Color="#171528" BaseSize="128,128"/>
   </ItemGroup>
   <ItemGroup Condition="'$(Configuration)' != 'Debug'">
     <Compile Remove="Components/Pages/MainPage.Debug.cs;Components/Pages/MainPage.Preview.cs"/>

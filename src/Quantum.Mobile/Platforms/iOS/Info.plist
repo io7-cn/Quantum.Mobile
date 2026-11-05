@@ -13,6 +13,8 @@
     </array>
     <key>UILaunchStoryboardName</key>
     <string>MauiSplash</string>
+    <key>XSAppIconAssets</key>
+    <string>Assets.xcassets/appicon.appiconset</string>
     <key>UISupportedInterfaceOrientations</key>
     <array>
       <string>UIInterfaceOrientationPortrait</string>
