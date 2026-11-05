@@ -30,7 +30,7 @@ if ($Target -eq 'android') {
     $verification = & $signer.FullName verify --verbose --print-certs $apk[0].FullName
     $verification | Write-Output
     $expectedCertificate = (Get-Content -LiteralPath (Join-Path $PSScriptRoot 'android-signing-certificate.sha256') -Raw).Trim()
-    $certificateDigests = @($verification | Select-String '^Signer #[0-9]+ certificate SHA-256 digest: ([0-9a-fA-F]{64})$' | ForEach-Object { $_.Matches[0].Groups[1].Value })
+    $certificateDigests = @($verification | Select-String '^(?:Signer #[0-9]+|V[0-9]+(?:\.[0-9]+)? Signer):? certificate SHA-256 digest: ([0-9a-fA-F]{64})$' | ForEach-Object { $_.Matches[0].Groups[1].Value } | Sort-Object -Unique)
     if ($certificateDigests.Count -ne 1 -or $certificateDigests[0] -ne $expectedCertificate) {
         throw 'The APK must use the recorded persistent Android signing certificate.'
     }
