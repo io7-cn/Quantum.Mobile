@@ -1,6 +1,8 @@
 using NOF.Contract;
 using System.Net;
 using System.Text.Json;
+using System.Text.Json.Nodes;
+using System.Text.Json.Serialization.Metadata;
 
 namespace Quantum.Mobile.Internal;
 /// <summary>Native-client session state. Persistence delegates must use platform secure storage.</summary>
@@ -28,7 +30,7 @@ public sealed class PlatformSession(HttpClient http, Uri platform, Func<Task<str
                 {
                     try
                     {
-                        _state = saved.TrimStart().StartsWith('{') ? JsonSerializer.Deserialize<PlatformSessionState>(saved, JsonSerializerOptions.Web) : new PlatformSessionState
+                        _state = saved.TrimStart().StartsWith('{') ? JsonSerializer.Deserialize(saved, ClientJsonContext.Default.PlatformSessionState) : new PlatformSessionState
                         {
                             AccessToken = saved,
                             ExpiresAtUtc = LegacyExpiration(saved)
@@ -53,7 +55,7 @@ public sealed class PlatformSession(HttpClient http, Uri platform, Func<Task<str
             {
                 try
                 {
-                    _state.User = await RpcAsync<PlatformSessionUser>("GetCurrentUser", new { }, _state.AccessToken, cancellationToken);
+                    _state.User = await RpcAsync<PlatformSessionUser>("GetCurrentUser", new JsonObject(), _state.AccessToken, cancellationToken);
                 }
                 catch (PlatformAuthenticationException)
                 {
@@ -81,7 +83,7 @@ public sealed class PlatformSession(HttpClient http, Uri platform, Func<Task<str
         await _gate.WaitAsync(cancellationToken);
         try
         {
-            var login = await RpcAsync<PlatformSessionState>("Login", new { email = email.Trim(), password }, null, cancellationToken);
+            var login = await RpcAsync<PlatformSessionState>("Login", new JsonObject { ["email"] = email.Trim(), ["password"] = password }, null, cancellationToken);
             if (login.User is null || string.IsNullOrEmpty(login.AccessToken))
             {
                 throw new JsonException("Incomplete login response.");
@@ -167,7 +169,7 @@ public sealed class PlatformSession(HttpClient http, Uri platform, Func<Task<str
         PlatformSessionState next;
         try
         {
-            next = await RpcAsync<PlatformSessionState>("RefreshLogin", new { refreshToken = _state.RefreshToken, requestId = _state.PendingRefreshId }, null, cancellationToken);
+            next = await RpcAsync<PlatformSessionState>("RefreshLogin", new JsonObject { ["refreshToken"] = _state.RefreshToken, ["requestId"] = _state.PendingRefreshId.Value.ToString("D") }, null, cancellationToken);
         }
         catch (PlatformAuthenticationException)
         {
@@ -201,7 +203,7 @@ public sealed class PlatformSession(HttpClient http, Uri platform, Func<Task<str
             using var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(5));
             try
             {
-                await RpcAsync<JsonElement>("Logout", new { refreshToken = token }, null, timeout.Token);
+                await RpcAsync<JsonElement>("Logout", new JsonObject { ["refreshToken"] = token }, null, timeout.Token);
             }
             catch (Exception e) when (e is HttpRequestException or OperationCanceledException or PlatformRpcException)
             {
@@ -237,7 +239,7 @@ public sealed class PlatformSession(HttpClient http, Uri platform, Func<Task<str
         await clear();
     }
 
-    private Task SaveAsync(PlatformSessionState state) => write(JsonSerializer.Serialize(state, JsonSerializerOptions.Web));
+    private Task SaveAsync(PlatformSessionState state) => write(JsonSerializer.Serialize(state, ClientJsonContext.Default.PlatformSessionState));
     private void SetRefreshTime(PlatformSessionState state)
     {
         var lifetime = state.ExpiresAtUtc - _clock.GetUtcNow().UtcDateTime;
@@ -249,9 +251,9 @@ public sealed class PlatformSession(HttpClient http, Uri platform, Func<Task<str
         state.RefreshAfterUtc = state.ExpiresAtUtc - TimeSpan.FromTicks(Math.Min(TimeSpan.FromMinutes(2).Ticks, lifetime.Ticks / 10));
     }
 
-    private async Task<T> RpcAsync<T>(string method, object parameters, string? token, CancellationToken cancellationToken)
+    private async Task<T> RpcAsync<T>(string method, JsonObject parameters, string? token, CancellationToken cancellationToken)
     {
-        var result = await PlatformRpcClient.SendAsync(http, _platform, method, JsonSerializer.SerializeToElement(parameters, JsonSerializerOptions.Web), token, cancellationToken);
+        var result = await PlatformRpcClient.SendAsync(http, _platform, method, JsonSerializer.SerializeToElement(parameters, ClientJsonContext.Default.JsonObject), token, cancellationToken);
         if (!result.IsSuccess)
         {
             if (result.ErrorCode is "401" or "authentication_required" or "invalid_refresh_token" or "user_not_found")
@@ -277,13 +279,14 @@ public sealed class PlatformSession(HttpClient http, Uri platform, Func<Task<str
         {
             if (typeof(T) == typeof(JsonElement))
             {
-                return (T)(object)JsonSerializer.SerializeToElement(new { });
+                return (T)(object)JsonSerializer.SerializeToElement(new JsonObject(), ClientJsonContext.Default.JsonObject);
             }
 
             throw new JsonException("Missing authentication response.");
         }
 
-        return value.Deserialize<T>(JsonSerializerOptions.Web) ?? throw new JsonException("Empty authentication response.");
+        var typeInfo = (JsonTypeInfo<T>)(ClientJsonContext.Default.GetTypeInfo(typeof(T)) ?? throw new JsonException("Unsupported authentication response type."));
+        return value.Deserialize(typeInfo) ?? throw new JsonException("Empty authentication response.");
     }
 
     private static DateTime LegacyExpiration(string token)

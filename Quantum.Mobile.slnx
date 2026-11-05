@@ -6,4 +6,5 @@
   <Project Path="tests/Quantum.Mobile.Protocol.Tests/Quantum.Mobile.Protocol.Tests.csproj"/>
   <Project Path="tests/Quantum.Mobile.Core.Tests/Quantum.Mobile.Core.Tests.csproj"/>
   <Project Path="tests/Quantum.Mobile.Debugging.Tests/Quantum.Mobile.Debugging.Tests.csproj"/>
+  <Project Path="tests/Quantum.Mobile.SerializationSmoke/Quantum.Mobile.SerializationSmoke.csproj"/>
 </Solution>

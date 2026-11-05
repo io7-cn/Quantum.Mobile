@@ -1,6 +1,7 @@
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text.Json;
+using System.Text.Json.Nodes;
 
 namespace Quantum.Mobile.Internal;
 /// <summary>Only platform control RPC is available here. This client cannot invoke plugin RPC names.</summary>
@@ -27,7 +28,9 @@ public sealed class BridgeClient(HttpClient http, Uri platform, Func<string?> ac
 
         using var request = new HttpRequestMessage(HttpMethod.Post, new Uri(platform, "rpc/mobile"));
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
-        request.Content = JsonContent.Create(new { jsonrpc = "2.0", id = Guid.NewGuid().ToString("N"), method = "ExchangeMobileBridge", @params = new BridgeRequest(operation, Registration?.Device.Id, Registration?.Secret, MobileJson.Element(body ?? new { })) });
+        var envelope = new BridgeRpcRequest("2.0", Guid.NewGuid().ToString("N"), "ExchangeMobileBridge",
+            new BridgeRequest(operation, Registration?.Device.Id, Registration?.Secret, MobileJson.Element(body ?? new JsonObject())));
+        request.Content = JsonContent.Create(envelope, ClientJsonContext.Default.BridgeRpcRequest);
         using var response = await http.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
         if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
         {

@@ -42,10 +42,10 @@ public sealed partial class MainPage
         var saved = await SecureStorage.Default.GetAsync(_storageKey);
         if (saved is not null)
         {
-            _client.Registration = JsonSerializer.Deserialize<BridgeRegistration>(saved, MobileJson.Options);
+            _client.Registration = JsonSerializer.Deserialize(saved, MobileJson.TypeInfo<BridgeRegistration>());
             try
             {
-                await _client.CallAsync<JsonElement>("heartbeat", new { clientInstanceId = instance });
+                await _client.CallAsync<JsonElement>("heartbeat", new JsonObject { ["clientInstanceId"] = instance });
             }
             catch (BridgeException e) when (e.Code == "mobile_device_revoked")
             {
@@ -55,13 +55,13 @@ public sealed partial class MainPage
 
         if (_client.Registration is null)
         {
-            _client.Registration = await _client.CallAsync<BridgeRegistration>("register", new { name = DeviceInfo.Current.Name, kind = "mobile", clientInstanceId = instance });
-            await SecureStorage.Default.SetAsync(_storageKey, JsonSerializer.Serialize(_client.Registration, MobileJson.Options));
+            _client.Registration = await _client.CallAsync<BridgeRegistration>("register", new JsonObject { ["name"] = DeviceInfo.Current.Name, ["kind"] = "mobile", ["clientInstanceId"] = instance });
+            await SecureStorage.Default.SetAsync(_storageKey, JsonSerializer.Serialize(_client.Registration, MobileJson.TypeInfo<BridgeRegistration>()));
         }
 
         _pendingId = Preferences.Default.Get(_storageKey + ".pending", (string?)null);
         var queued = await SecureStorage.Default.GetAsync(_storageKey + ".outbox");
-        _outbox = queued is null ? null : JsonSerializer.Deserialize<PendingAction>(queued, MobileJson.Options);
+        _outbox = queued is null ? null : JsonSerializer.Deserialize(queued, ClientJsonContext.Default.PendingAction);
         if (_outbox is not null)
         {
             _pendingId = _outbox.Send.Id;
@@ -69,7 +69,7 @@ public sealed partial class MainPage
         }
 
         var failed = await SecureStorage.Default.GetAsync(_storageKey + ".failed-draft");
-        _failedDraft = failed is null ? null : JsonSerializer.Deserialize<PendingAction>(failed, MobileJson.Options);
+        _failedDraft = failed is null ? null : JsonSerializer.Deserialize(failed, ClientJsonContext.Default.PendingAction);
         _offerFailedDraft = _failedDraft is not null;
         if (_failedDraft is not null)
         {

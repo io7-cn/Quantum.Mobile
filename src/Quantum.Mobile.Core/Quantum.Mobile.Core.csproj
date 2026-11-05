@@ -11,5 +11,6 @@
     <PackageReference Include="NOF.Contract"/>
     <InternalsVisibleTo Include="Quantum.Mobile"/>
     <InternalsVisibleTo Include="Quantum.Mobile.Core.Tests"/>
+    <InternalsVisibleTo Include="Quantum.Mobile.SerializationSmoke"/>
   </ItemGroup>
 </Project>

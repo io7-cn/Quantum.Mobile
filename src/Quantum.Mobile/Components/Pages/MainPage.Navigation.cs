@@ -369,7 +369,7 @@ public sealed partial class MainPage
         _navigation.Move(source, target);
         if (!_preview && _storageKey.Length > 0 && _desktopId is not null)
         {
-            Preferences.Default.Set(_storageKey + ".nav-order." + _desktopId, JsonSerializer.Serialize(_navigation.Order));
+            Preferences.Default.Set(_storageKey + ".nav-order." + _desktopId, JsonSerializer.Serialize(_navigation.Order, MobileJson.TypeInfo<string[]>()));
         }
 
         RenderNavigation();
@@ -385,7 +385,7 @@ public sealed partial class MainPage
         try
         {
             var order = Preferences.Default.Get(_storageKey + ".nav-order." + _desktopId, "[]");
-            _navigation.RestoreOrder(JsonSerializer.Deserialize<string[]>(order) ?? []);
+            _navigation.RestoreOrder(JsonSerializer.Deserialize(order, MobileJson.TypeInfo<string[]>()) ?? []);
         }
         catch (JsonException)
         {
@@ -400,7 +400,7 @@ public sealed partial class MainPage
             return;
         }
 
-        var pages = await _client.CallAsync<BridgePageInfo[]>("pages", new { desktopId = _desktopId, includeIcons = true, includeIconImages = true });
+        var pages = await _client.CallAsync<BridgePageInfo[]>("pages", new JsonObject { ["desktopId"] = _desktopId, ["includeIcons"] = true, ["includeIconImages"] = true });
         _navigation.Replace(pages);
         RenderNavigation();
     }
