@@ -131,7 +131,7 @@ public sealed partial class MainPage
         var name = _preview ? "Quantum Preview" : !string.IsNullOrWhiteSpace(user?.Username) ? user.Username : user?.Email ?? "Quantum";
         _avatarInitial.Text = StringInfo.GetNextTextElement(name).ToUpperInvariant();
         _menuSettings.Text = _appUpdates.State is MobileUpdateState.Available or MobileUpdateState.Ready ? T("设置 · 有更新", "Settings · Update available") : T("设置", "Settings");
-        _pageTitle.Text = _navigation.Current?.Title ?? _currentDesktop?.Name ?? T("Quantum 移动端", "Quantum Mobile");
+        _pageTitle.Text = _navigation.Current?.Title ?? _currentDesktop?.Name ?? "Quantum";
         _menuContent.Children.Clear();
         _menuContent.Children.Add(new Label { Text = name, FontSize = 21, FontAttributes = FontAttributes.Bold, TextColor = MobileTheme.Ink, MaxLines = 1, LineBreakMode = LineBreakMode.TailTruncation });
         _menuContent.Children.Add(MobileTheme.Caption(_preview ? "preview@example.test" : user?.Email ?? ""));

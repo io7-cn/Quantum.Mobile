@@ -43,8 +43,18 @@ public sealed partial class MainPage
                 new ColumnDefinition(GridLength.Auto)
             }
         };
-        header.Add(new Border { WidthRequest = 36, HeightRequest = 36, StrokeThickness = 0, BackgroundColor = MobileTheme.Accent, StrokeShape = new RoundRectangle { CornerRadius = 10 }, Content = new Label { Text = "Q", FontSize = 24, FontAttributes = FontAttributes.Bold, TextColor = Colors.White, HorizontalTextAlignment = TextAlignment.Center, VerticalTextAlignment = TextAlignment.Center } });
-        header.Add(new VerticalStackLayout { VerticalOptions = LayoutOptions.Center, Spacing = 0, Children = { new Label { Text = "Quantum", FontSize = 17, FontAttributes = FontAttributes.Bold, TextColor = MobileTheme.Ink }, new Label { Text = "MOBILE", FontSize = 10, CharacterSpacing = 2, TextColor = MobileTheme.Muted } } }, 1);
+        var logo = new Image { Source = "appiconfg.png", Aspect = Aspect.AspectFit };
+        SemanticProperties.SetDescription(logo, "Quantum");
+        header.Add(new Border
+        {
+            WidthRequest = 36,
+            HeightRequest = 36,
+            StrokeThickness = 0,
+            BackgroundColor = Color.FromArgb("#6D5DFB"),
+            StrokeShape = new RoundRectangle { CornerRadius = 8 },
+            Content = logo
+        });
+        header.Add(new Label { Text = "Quantum", FontSize = 17, FontAttributes = FontAttributes.Bold, TextColor = MobileTheme.Ink, VerticalOptions = LayoutOptions.Center }, 1);
         _language.ItemsSource = new[]
         {
             "简体中文",

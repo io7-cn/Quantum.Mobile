@@ -12,7 +12,7 @@ public sealed class App : Application
         var page = new MainPage();
         var window = new Window(new NavigationPage(page) { BarBackgroundColor = Colors.White, BarTextColor = MobileTheme.Ink })
         {
-            Title = "Quantum Mobile",
+            Title = "Quantum",
             Width = 430,
             Height = 860
         };

@@ -67,7 +67,7 @@ public sealed partial class MainPage : ContentPage
     public MainPage()
     {
         ApplyLanguage(Preferences.Default.Get("quantum.mobile.language", CultureInfo.CurrentUICulture.TwoLetterISOLanguageName));
-        Title = "Quantum Mobile";
+        Title = "Quantum";
         BackgroundColor = MobileTheme.Canvas;
         SafeAreaEdges = Microsoft.Maui.SafeAreaEdges.All;
         NavigationPage.SetHasNavigationBar(this, false);
