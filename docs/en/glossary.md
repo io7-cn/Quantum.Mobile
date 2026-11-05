@@ -71,3 +71,8 @@ The .NET framework used by Quantum for operation contracts and JSON remote calls
 ## UI
 
 User Interface, the controls and screens used to operate the app.
+
+<a id="pkcs12"></a>
+## PKCS12
+
+Public-Key Cryptography Standards #12, a password-protected container for a private signing key and its certificate. Base64 encodes its bytes as text for secret injection; base64 does not encrypt them.

@@ -6,7 +6,7 @@ namespace Quantum.Mobile.Core.Updates;
 /// <summary>Reads only the official client releases; installation remains an explicit OS operation.</summary>
 public sealed class MobileAppUpdateService(HttpClient http, string currentVersion, long currentBuild, string? channel)
 {
-    private const string Repository = "https://api.github.com/repos/XmmShp/Quantum/releases?per_page=50";
+    private const string Repository = "https://api.github.com/repos/io7-cn/Quantum.Mobile/releases?per_page=50";
     private const long MaximumPackageBytes = 512L * 1024 * 1024;
     private readonly SemaphoreSlim _gate = new(1, 1);
     public event Action? Changed;
@@ -223,7 +223,7 @@ public sealed class MobileAppUpdateService(HttpClient http, string currentVersio
     private static Uri AssetUri(JsonElement asset)
     {
         var uri = new Uri(asset.GetProperty("browser_download_url").GetString()!, UriKind.Absolute);
-        if (uri.Scheme != "https" || uri.Host != "github.com" || !uri.IsDefaultPort || uri.UserInfo.Length != 0 || !uri.AbsolutePath.StartsWith("/XmmShp/Quantum/releases/download/", StringComparison.Ordinal))
+        if (uri.Scheme != "https" || uri.Host != "github.com" || !uri.IsDefaultPort || uri.UserInfo.Length != 0 || !uri.AbsolutePath.StartsWith("/io7-cn/Quantum.Mobile/releases/download/", StringComparison.Ordinal))
         {
             throw new InvalidDataException("Untrusted update source.");
         }

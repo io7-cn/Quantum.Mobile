@@ -82,6 +82,18 @@ public sealed class MobileAppUpdateTests
         Assert.Null(updates.Target);
     }
 
+    [Theory]
+    [InlineData("https://github.com/XmmShp/Quantum/releases/download/mobile-v1.0.0/package.apk")]
+    [InlineData("https://github.com/io7-cn/Quantum.Desktop/releases/download/mobile-v1.0.0/package.apk")]
+    public async Task ReleaseAssetsMustBelongToTheIndependentMobileRepository(string url)
+    {
+        using var fixture = new ReleaseFixture { DownloadHost = url };
+        var updates = fixture.Updates();
+        await updates.CheckAsync();
+        Assert.Equal(MobileUpdateState.Failed, updates.State);
+        Assert.Null(updates.Target);
+    }
+
     [Fact]
     public async Task DraftReleasesAreNotOffered()
     {
@@ -117,8 +129,8 @@ public sealed class MobileAppUpdateTests
         private readonly bool _feed;
         private readonly string _digest;
         private readonly byte[] _metadata;
-        private string PackageUrl => $"https://github.com/XmmShp/Quantum/releases/download/mobile-v{_version}-preview.1/Quantum-Mobile-{_version}-android.apk";
-        private string FeedUrl => $"https://github.com/XmmShp/Quantum/releases/download/mobile-v{_version}-preview.1/update.android.json";
+        private string PackageUrl => $"https://github.com/io7-cn/Quantum.Mobile/releases/download/mobile-v{_version}-preview.1/Quantum-Mobile-{_version}-android.apk";
+        private string FeedUrl => $"https://github.com/io7-cn/Quantum.Mobile/releases/download/mobile-v{_version}-preview.1/update.android.json";
 
         public ReleaseFixture(string version = "0.1.13", int build = 101, bool feed = true)
         {
@@ -134,7 +146,7 @@ public sealed class MobileAppUpdateTests
         {
             Requests++;
             byte[] bytes;
-            if (request.RequestUri!.Host == "api.github.com")
+            if (request.RequestUri!.AbsoluteUri == "https://api.github.com/repos/io7-cn/Quantum.Mobile/releases?per_page=50")
             {
                 var assets = new List<object>
                 {

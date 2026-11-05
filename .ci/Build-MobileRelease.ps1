@@ -27,7 +27,13 @@ if ($Target -eq 'android') {
     $signerName = if ($IsWindows) { 'apksigner.bat' } else { 'apksigner' }
     $signer = Get-ChildItem "$sdk/build-tools/*/$signerName" -File | Sort-Object FullName -Descending | Select-Object -First 1
     if (!$signer) { throw 'Android apksigner is required to verify the release.' }
-    & $signer.FullName verify --verbose --print-certs $apk[0].FullName
+    $verification = & $signer.FullName verify --verbose --print-certs $apk[0].FullName
+    $verification | Write-Output
+    $expectedCertificate = (Get-Content -LiteralPath (Join-Path $PSScriptRoot 'android-signing-certificate.sha256') -Raw).Trim()
+    $certificateDigests = @($verification | Select-String '^Signer #[0-9]+ certificate SHA-256 digest: ([0-9a-fA-F]{64})$' | ForEach-Object { $_.Matches[0].Groups[1].Value })
+    if ($certificateDigests.Count -ne 1 -or $certificateDigests[0] -ne $expectedCertificate) {
+        throw 'The APK must use the recorded persistent Android signing certificate.'
+    }
     Copy-Item -LiteralPath $apk[0].FullName -Destination "$delivery/Quantum-Mobile-$Version-android.apk"
 } else {
     dotnet clean $project @releaseBuild -v quiet -c Release -f net10.0-windows10.0.19041.0 -p:QuantumMobileTargetFramework=net10.0-windows10.0.19041.0 -r win-x64

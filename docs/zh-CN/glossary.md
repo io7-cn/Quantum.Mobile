@@ -71,3 +71,8 @@ Quantum 使用的 .NET 框架，提供操作契约和 JSON 远程调用。
 ## UI
 
 User Interface，用户界面，包括操作应用的控件与页面。
+
+<a id="pkcs12"></a>
+## PKCS12
+
+Public-Key Cryptography Standards #12，公钥密码标准第 12 号，以密码保护签名私钥及其证书的容器。Base64 将其字节编码为文本以便注入 Secrets；base64 本身不提供加密。
