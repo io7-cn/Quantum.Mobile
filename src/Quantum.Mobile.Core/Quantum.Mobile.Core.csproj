@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <IsPackable>false</IsPackable>
+    <Description>Platform transport, navigation, attachment storage and update coordination for Quantum Mobile.</Description>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../Quantum.Mobile.Protocol/Quantum.Mobile.Protocol.csproj"/>
+    <PackageReference Include="NOF.Contract"/>
+    <InternalsVisibleTo Include="Quantum.Mobile"/>
+    <InternalsVisibleTo Include="Quantum.Mobile.Core.Tests"/>
+  </ItemGroup>
+</Project>

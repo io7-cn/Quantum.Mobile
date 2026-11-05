@@ -1,0 +1,64 @@
+name: Verify Mobile
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: 10.0.x
+      - run: dotnet restore .ci/Quantum.Mobile.Checks.slnx
+      - run: dotnet test .ci/Quantum.Mobile.Checks.slnx -c Release --no-restore
+      - name: Check formatting
+        shell: pwsh
+        run: ./.ci/Format-Mobile.ps1 -Verify
+
+  windows:
+    runs-on: windows-latest
+    env:
+      QuantumMobileTargetFramework: net10.0-windows10.0.19041.0
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: 10.0.x
+      - run: dotnet workload install maui-windows --skip-manifest-update
+      - run: dotnet build src/Quantum.Mobile/Quantum.Mobile.csproj -c Debug -f net10.0-windows10.0.19041.0
+      - name: Check native formatting
+        shell: pwsh
+        run: ./.ci/Format-Mobile.ps1 -Verify -NativeTarget net10.0-windows10.0.19041.0
+      - run: dotnet build src/Quantum.Mobile/Quantum.Mobile.csproj -c Release -f net10.0-windows10.0.19041.0 -p:DebugType=none -p:DebugSymbols=false
+
+  android:
+    runs-on: ubuntu-latest
+    env:
+      QuantumMobileTargetFramework: net10.0-android
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: 10.0.x
+      - uses: actions/setup-java@v4
+        with:
+          distribution: microsoft
+          java-version: '21'
+      - run: dotnet workload install maui-android --skip-manifest-update
+      - name: Install Android dependencies
+        run: dotnet build src/Quantum.Mobile/Quantum.Mobile.csproj -f net10.0-android -t:InstallAndroidDependencies -p:AcceptAndroidSdkLicenses=true
+      - run: dotnet build src/Quantum.Mobile/Quantum.Mobile.csproj -c Debug -f net10.0-android
