@@ -71,4 +71,4 @@ jobs:
         run: dotnet build src/Quantum.Mobile/Quantum.Mobile.csproj -f net10.0-android -t:InstallAndroidDependencies -p:AcceptAndroidSdkLicenses=true
       - run: dotnet build src/Quantum.Mobile/Quantum.Mobile.csproj -c Debug -f net10.0-android
       - name: Verify Android Release packaging
-        run: dotnet build src/Quantum.Mobile/Quantum.Mobile.csproj -c Release -f net10.0-android -p:AndroidPackageFormats=apk
+        run: dotnet build src/Quantum.Mobile/Quantum.Mobile.csproj -c Release -f net10.0-android -p:AndroidPackageFormats=apk -p:UseDefaultPublishRuntimeIdentifier=false
