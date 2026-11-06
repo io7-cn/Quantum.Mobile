@@ -18,7 +18,6 @@ public sealed partial class MainPage
     private bool _offerFailedDraft;
     private Button? _restoreDraft;
     private long _feedbackRevision;
-    private sealed record PendingAction(BridgeSend Send, string MobileId, string PluginId, string PageId, DateTimeOffset ExpiresAt, Dictionary<string, JsonElement> Inputs);
     private void SetActionFeedback(string text)
     {
         _actionFeedback.Text = text;
@@ -96,7 +95,7 @@ public sealed partial class MainPage
                 }
                 else
                 {
-                    Outcome(new(pending.Send.Id, "failed", e.Code, MobileJson.Element(new { errorCode = e.Code })));
+                    Outcome(new(pending.Send.Id, "failed", e.Code, MobileJson.Element(new JsonObject { ["errorCode"] = e.Code })));
                 }
             }
         }
@@ -127,7 +126,13 @@ public sealed partial class MainPage
             foreach (var file in MobileAttachments.Read(value))
             {
                 SetActionFeedback(T("正在上传 ", "Uploading ") + file.Name);
-                var created = await client.CallAsync<JsonElement>("attachment/create", new { desktopId = pending.Send.TargetId, viewId = invoke.ViewId, inputId, attachment = file }, token);
+                var created = await client.CallAsync<JsonElement>("attachment/create", new JsonObject
+                {
+                    ["desktopId"] = pending.Send.TargetId,
+                    ["viewId"] = invoke.ViewId,
+                    ["inputId"] = inputId,
+                    ["attachment"] = JsonSerializer.SerializeToNode(file, MobileJson.TypeInfo<BridgeAttachment>())
+                }, token);
                 if (created.TryGetProperty("ready", out var ready) && ready.GetBoolean())
                 {
                     continue;
@@ -147,9 +152,9 @@ public sealed partial class MainPage
                     stream.Position = offset;
                     var bytes = new byte[(int)Math.Min(MobileAttachments.ChunkBytes, file.Size - offset)];
                     await stream.ReadExactlyAsync(bytes, cancellation);
-                    await client.CallAsync<JsonElement>("attachment/write", new { attachmentId = file.Id, offset, dataBase64 = Convert.ToBase64String(bytes) }, cancellation);
+                    await client.CallAsync<JsonElement>("attachment/write", new JsonObject { ["attachmentId"] = file.Id, ["offset"] = offset, ["dataBase64"] = Convert.ToBase64String(bytes) }, cancellation);
                 });
-                await client.CallAsync<JsonElement>("attachment/complete", new { attachmentId = file.Id }, token);
+                await client.CallAsync<JsonElement>("attachment/complete", new JsonObject { ["attachmentId"] = file.Id }, token);
             }
         }
     }
@@ -199,7 +204,7 @@ public sealed partial class MainPage
     {
         try
         {
-            await SecureStorage.Default.SetAsync(_storageKey + ".failed-draft", JsonSerializer.Serialize(draft, MobileJson.Options));
+            await SecureStorage.Default.SetAsync(_storageKey + ".failed-draft", JsonSerializer.Serialize(draft, ClientJsonContext.Default.PendingAction));
         }
         catch (Exception)
         { /* The in-memory draft remains available for recovery. */

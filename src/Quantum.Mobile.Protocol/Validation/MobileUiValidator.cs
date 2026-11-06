@@ -80,7 +80,7 @@ public static partial class MobileUiValidator
             }
         }
 
-        if (JsonSerializer.SerializeToUtf8Bytes(page, MobileJson.Options).Length > MaximumPageBytes)
+        if (JsonSerializer.SerializeToUtf8Bytes(page, MobileJson.TypeInfo<MobilePage>()).Length > MaximumPageBytes)
         {
             throw new ArgumentException("Mobile page exceeds 128 KiB.");
         }

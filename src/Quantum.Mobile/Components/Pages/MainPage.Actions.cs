@@ -23,14 +23,14 @@ public sealed partial class MainPage
     {
         if (_preview)
         {
-            _status.Text = "MOCK · " + JsonSerializer.Serialize(inputs);
+            _status.Text = "MOCK · " + JsonSerializer.Serialize(inputs, MobileJson.TypeInfo<Dictionary<string, JsonElement>>());
             if (_pendingId is not null)
             {
                 return;
             }
 
             _pendingId = Guid.NewGuid().ToString("N");
-            _outbox = new(new BridgeSend(_pendingId, "mock", "action", MobileJson.Element(new { })), "mock", _snapshot!.PluginId, _snapshot.Page.Id, _snapshot.ExpiresAt, inputs);
+            _outbox = new(new BridgeSend(_pendingId, "mock", "action", MobileJson.Element(new JsonObject())), "mock", _snapshot!.PluginId, _snapshot.Page.Id, _snapshot.ExpiresAt, inputs);
             _renderer?.ResetSubmittedInputs(inputs);
             SetActionFeedback(T("待发送…", "Queued…"));
             UpdateActionAvailability();
@@ -51,7 +51,7 @@ public sealed partial class MainPage
         try
         {
             // Persist the complete immutable command before acknowledging the tap or touching inputs.
-            await SecureStorage.Default.SetAsync(_storageKey + ".outbox", JsonSerializer.Serialize(pending, MobileJson.Options));
+            await SecureStorage.Default.SetAsync(_storageKey + ".outbox", JsonSerializer.Serialize(pending, ClientJsonContext.Default.PendingAction));
             _outbox = pending;
             _pendingId = id;
             _renderer?.ResetSubmittedInputs(inputs);

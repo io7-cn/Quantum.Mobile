@@ -117,6 +117,13 @@ jobs:
         run: dotnet workload install maui-windows --skip-manifest-update
       - name: Test mobile logic
         run: dotnet test .ci/Quantum.Mobile.Checks.slnx -c Release
+      - name: Verify trimmed authentication and bridge
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $PSNativeCommandUseErrorActionPreference = $true
+          dotnet publish tests/Quantum.Mobile.SerializationSmoke/Quantum.Mobile.SerializationSmoke.csproj -c Release -r win-x64 --self-contained true -p:PublishTrimmed=true -p:TrimMode=full -o artifacts/serialization-smoke
+          & ./artifacts/serialization-smoke/Quantum.Mobile.SerializationSmoke.exe
       - name: Publish portable Windows client
         shell: pwsh
         run: ./.ci/Build-MobileRelease.ps1 -Version '${{ needs.prepare.outputs.version }}' -Target win-x64 -BuildNumber ${{ needs.prepare.outputs.build_number }}

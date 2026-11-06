@@ -23,6 +23,10 @@ jobs:
           dotnet-version: 10.0.x
       - run: dotnet restore .ci/Quantum.Mobile.Checks.slnx
       - run: dotnet test .ci/Quantum.Mobile.Checks.slnx -c Release --no-restore
+      - name: Publish trimmed serialization check
+        run: dotnet publish tests/Quantum.Mobile.SerializationSmoke/Quantum.Mobile.SerializationSmoke.csproj -c Release -r linux-x64 --self-contained true -p:PublishTrimmed=true -p:TrimMode=full -o artifacts/serialization-smoke
+      - name: Verify reflection-free login and bridge
+        run: ./artifacts/serialization-smoke/Quantum.Mobile.SerializationSmoke
       - name: Check formatting
         shell: pwsh
         run: ./.ci/Format-Mobile.ps1 -Verify
@@ -66,3 +70,5 @@ jobs:
       - name: Install Android dependencies
         run: dotnet build src/Quantum.Mobile/Quantum.Mobile.csproj -f net10.0-android -t:InstallAndroidDependencies -p:AcceptAndroidSdkLicenses=true
       - run: dotnet build src/Quantum.Mobile/Quantum.Mobile.csproj -c Debug -f net10.0-android
+      - name: Verify Android Release packaging
+        run: dotnet build src/Quantum.Mobile/Quantum.Mobile.csproj -c Release -f net10.0-android -p:AndroidPackageFormats=apk -p:UseDefaultPublishRuntimeIdentifier=false

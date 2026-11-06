@@ -133,7 +133,7 @@ public sealed partial class MainPage
                         nextStatus = DateTimeOffset.UtcNow.AddSeconds(2);
                         try
                         {
-                            Outcome(await client.CallAsync<BridgeOutcome>("status", new { requestId = _pendingId }, token));
+                            Outcome(await client.CallAsync<BridgeOutcome>("status", new JsonObject { ["requestId"] = _pendingId }, token));
                         }
                         catch (BridgeException e) when (e.Code == "mobile_not_found")
                         {

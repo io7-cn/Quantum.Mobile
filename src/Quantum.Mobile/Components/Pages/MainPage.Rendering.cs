@@ -8,7 +8,7 @@ public sealed partial class MainPage
     private async Task ShowPagesAsync()
     {
         _language.IsEnabled = true;
-        var pages = await _client!.CallAsync<BridgePageInfo[]>("pages", new { desktopId = _desktopId, includeIcons = true, includeIconImages = true });
+        var pages = await _client!.CallAsync<BridgePageInfo[]>("pages", new JsonObject { ["desktopId"] = _desktopId, ["includeIcons"] = true, ["includeIconImages"] = true });
         _navigation.Replace(pages);
         RenderNavigation();
         if (pages.Length > 0)

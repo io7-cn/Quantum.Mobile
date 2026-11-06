@@ -1,3 +1,4 @@
+global using Quantum.Mobile.Core.Actions;
 global using Quantum.Mobile.Core.Attachments;
 global using Quantum.Mobile.Core.Feedback;
 global using Quantum.Mobile.Core.Navigation;
@@ -11,3 +12,4 @@ global using Quantum.MobileApp.Components.Updates;
 global using Quantum.MobileApp.Localization;
 global using Quantum.MobileApp.Shell;
 global using Quantum.MobileApp.Storage;
+global using System.Text.Json.Nodes;
