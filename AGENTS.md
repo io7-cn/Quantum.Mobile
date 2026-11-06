@@ -1,6 +1,8 @@
 # Quantum Mobile instructions
 
 - Follow the [English development standards](.standards/docs/en/README.md) at the commit recorded by this repository. Use the contributor-approved Git identity for both author and committer; never invent a placeholder identity.
+- Follow the [Git branching standards](.standards/docs/en/02-development/git-branching.md) before editing: inspect the branch and working tree, refresh the approved target and create or reuse a compliant topic branch without discarding unrelated work. Do not edit, commit or push directly on protected branches; merge through a change request with required checks and approvals. Administrator access and passing tests do not waive this workflow.
+- Keep temporary and one-off scripts/data, ad hoc acceptance checks, individual-task evidence, per-run histories and temporary investigation/handoff notes out of version control under [MNT-09](.standards/docs/en/05-maintenance/maintenance-standards.md#keep-acceptance-records-outside-source-repositories). Hidden directories do not exempt these files. Store retained evidence externally; version only maintained project assets with a lasting purpose, ownership and appropriate review/verification.
 
 - Read the [English documentation](docs/en/README.md). Maintain matching files under `docs/en/` and `docs/zh-CN/`, with direct links between each pair. Keep this file in English.
 - Follow the repository EditorConfig. Prefer var when inferable, PascalCase for static fields and constants, _camelCase for private instance fields, braces for control blocks, and expression bodies for single-line methods.
